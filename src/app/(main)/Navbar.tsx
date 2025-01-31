@@ -23,7 +23,9 @@ export default function Navbar() {
             height={40}
             className="rounded-full"
           />
-          <span className="text-xl font-bold tracking-tight">IA Currículo</span>
+          <span className="text-xl font-bold tracking-tight">
+            Gerar Currículo
+          </span>
         </Link>
 
         <div className="flex items-center gap-3">
