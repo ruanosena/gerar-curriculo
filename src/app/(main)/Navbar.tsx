@@ -47,9 +47,9 @@ export default function Navbar() {
           >
             <UserButton.MenuItems>
               <UserButton.Link
-                label="Faturamento"
+                label="Cobrança"
                 labelIcon={<CreditCard className="size-5" />}
-                href="/faturamento"
+                href="/cobranca"
               />
             </UserButton.MenuItems>
           </UserButton>
