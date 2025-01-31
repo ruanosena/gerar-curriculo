@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { createCheckoutSession } from "./actions";
+import { env } from "@/env";
 
 const premiumFeatures = ["Currículos infinitos", "Personalizações de design"];
 
@@ -59,9 +60,7 @@ export default function PremiumModal() {
             </ul>
             <Button
               onClick={() =>
-                handlePremiumClick(
-                  process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY!,
-                )
+                handlePremiumClick(env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO_MONTHLY)
               }
               disabled={loading}
               variant="premium"
