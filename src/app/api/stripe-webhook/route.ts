@@ -20,8 +20,6 @@ export async function POST(req: NextRequest) {
       env.STRIPE_WEBHOOK_SECRET,
     );
 
-    console.log(`Evento recebido: ${event.type}`, event.data.object);
-
     switch (event.type) {
       case "checkout.session.completed":
         await handleSessionCompleted(event.data.object);
@@ -52,7 +50,9 @@ async function handleSessionCompleted(session: Stripe.Checkout.Session) {
     throw new Error("O ID do usuário está faltando nos metadados da sessão");
   }
 
-  (await clerkClient()).users.updateUserMetadata(userId, {
+  await (
+    await clerkClient()
+  ).users.updateUserMetadata(userId, {
     privateMetadata: {
       stripeCustomerId: session.customer as string,
     },
