@@ -11,12 +11,22 @@ export async function createCheckoutSession(priceId: string) {
     throw new Error("Não autorizado");
   }
 
+  const stripeCustomerId = user.privateMetadata.stripeCustomerId as
+    | string
+    | undefined;
+
   const session = await stripe.checkout.sessions.create({
     line_items: [{ price: priceId, quantity: 1 }],
     mode: "subscription",
     success_url: `${env.NEXT_PUBLIC_BASE_URL}/cobranca/sucesso`,
     cancel_url: `${env.NEXT_PUBLIC_BASE_URL}/cobranca`,
-    customer_email: user.emailAddresses[0].emailAddress,
+    customer: stripeCustomerId,
+    customer_email: stripeCustomerId
+      ? undefined
+      : user.emailAddresses[0].emailAddress,
+    metadata: {
+      userId: user.id,
+    },
     subscription_data: {
       metadata: {
         userId: user.id,
