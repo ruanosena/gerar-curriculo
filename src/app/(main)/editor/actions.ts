@@ -1,6 +1,8 @@
 "use server";
 
+import { canCreateResume, canUseCustomizations } from "@/lib/permissions";
 import prisma from "@/lib/prisma";
+import { getUserSubscriptionLevel } from "@/lib/subscription";
 import { resumeSchema, ResumeValues } from "@/lib/validation";
 import { auth } from "@clerk/nextjs/server";
 import { del, put } from "@vercel/blob";
@@ -20,7 +22,17 @@ export async function saveResume(values: ResumeValues) {
     throw new Error("Usuário não autenticado");
   }
 
-  // TODO: Check resume count for non-premium users
+  const subscriptionLevel = await getUserSubscriptionLevel(userId);
+
+  if (!id) {
+    const resumeCount = await prisma.resume.count({ where: { userId } });
+
+    if (!canCreateResume(subscriptionLevel, resumeCount)) {
+      throw new Error(
+        "Número máximo de currículos atingido para este nível de assinatura",
+      );
+    }
+  }
 
   const existingResume = id
     ? await prisma.resume.findUnique({ where: { id, userId } })
@@ -28,6 +40,18 @@ export async function saveResume(values: ResumeValues) {
 
   if (id && !existingResume) {
     throw new Error("Currículo não encontrado");
+  }
+
+  const hasCustomization =
+    (resumeValues.borderStyle &&
+      resumeValues.borderStyle !== existingResume?.borderStyle) ||
+    (resumeValues.colorHex &&
+      resumeValues.colorHex !== existingResume?.colorHex);
+
+  if (hasCustomization && !canUseCustomizations(subscriptionLevel)) {
+    throw new Error(
+      "Customizações não permitidas para este nível de assinatura",
+    );
   }
 
   let newPhotoUrl: string | undefined | null = undefined;
